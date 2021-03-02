@@ -32,6 +32,34 @@ func (m *SparseMatrix) At(i, j int) float64 {
 	return 0
 }
 
+// AddAt is a generic method to add a value to a matrix element.
+func (m *SparseMatrix) AddAt(i, j int, v float64) {
+	if uint(i) < 0 || uint(i) >= uint(m.I) {
+		panic("sparse/blas: index out of range")
+	}
+	if uint(j) < 0 || uint(j) >= uint(m.J) {
+		panic("sparse/blas: index out of range")
+	}
+
+	for k := m.Indptr[i]; k < m.Indptr[i+1]; k++ {
+		if m.Ind[k] == j {
+			// if element(i, j) is already a non-zero value then simply update the existing
+			// value without altering the sparsity pattern
+			m.Data[k] += v
+			return
+		}
+	}
+
+	if v == 0 {
+		// don't bother storing new zero values
+		return
+	}
+
+	// element(i, j) doesn't exist in current sparsity pattern and is beyond the last
+	// non-zero element of a row/col or an empty row/col - so add it
+	m.insert(i, j, v, m.Indptr[i+1])
+}
+
 // Set is a generic method to set a matrix element.  Note: setting a non-zero element to zero
 // does not remove the element from the sparcity pattern but will actually store a zero value.
 func (m *SparseMatrix) Set(i, j int, v float64) {

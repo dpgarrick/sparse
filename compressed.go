@@ -1,7 +1,7 @@
 package sparse
 
 import (
-	"github.com/james-bowman/sparse/blas"
+	"github.com/dpgarrick/sparse/blas"
 	"gonum.org/v1/gonum/mat"
 )
 
@@ -77,6 +77,12 @@ func (c *CSR) Dims() (int, int) {
 // for i or j fall outside the dimensions of the matrix.
 func (c *CSR) At(m, n int) float64 {
 	return c.matrix.At(m, n)
+}
+
+// AddAt adds the value v to the element of the matrix located at row i and column j.  AddAt will panic if
+// specified values for i or j fall outside the dimensions of the matrix.
+func (c *CSR) AddAt(m, n int, v float64) {
+	c.matrix.AddAt(m, n, v)
 }
 
 // Set sets the element of the matrix located at row i and column j to value v.  Set will panic if
@@ -401,6 +407,12 @@ func (c *CSC) Dims() (int, int) {
 // for i or j fall outside the dimensions of the matrix.
 func (c *CSC) At(m, n int) float64 {
 	return c.matrix.At(n, m)
+}
+
+// AddAt adds the value v to the element of the matrix located at row i and column j.  AddAt will panic if
+// specified values for i or j fall outside the dimensions of the matrix.
+func (c *CSC) AddAt(m, n int, v float64) {
+	c.matrix.AddAt(n, m, v)
 }
 
 // Set sets the element of the matrix located at row i and column j to value v.  Set will panic if

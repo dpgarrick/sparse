@@ -1,4 +1,4 @@
-module github.com/james-bowman/sparse
+module github.com/dpgarrick/sparse
 
 go 1.14
 

@@ -313,6 +313,143 @@ func TestCSRCSCSet(t *testing.T) {
 	}
 }
 
+func TestCSRCSCAddAt(t *testing.T) {
+	var tests = []struct {
+		r, c   int
+		data   []float64
+		i, j   int
+		v      float64
+		result []float64
+	}{
+		{ // 0 at start of matrix set to non-zero
+			r: 3, c: 4,
+			data: []float64{
+				0, 0, 0, 0,
+				0, 2, 1, 0,
+				0, 0, 3, 6,
+			},
+			i: 0, j: 0,
+			v: 5,
+			result: []float64{
+				5, 0, 0, 0,
+				0, 2, 1, 0,
+				0, 0, 3, 6,
+			},
+		},
+		{ // 0 as first element of row set to non-zero
+			r: 3, c: 4,
+			data: []float64{
+				1, 0, 0, 0,
+				0, 2, 1, 0,
+				0, 0, 3, 6,
+			},
+			i: 2, j: 0,
+			v: 5,
+			result: []float64{
+				1, 0, 0, 0,
+				0, 2, 1, 0,
+				5, 0, 3, 6,
+			},
+		},
+		{ // 0 as first non-zero element of row set to non-zero
+			r: 3, c: 4,
+			data: []float64{
+				1, 0, 0, 0,
+				0, 2, 1, 0,
+				0, 0, 3, 6,
+			},
+			i: 2, j: 1,
+			v: 5,
+			result: []float64{
+				1, 0, 0, 0,
+				0, 2, 1, 0,
+				0, 5, 3, 6,
+			},
+		},
+		{ // 0 as non-zero element in middle of row/col set to non-zero
+			r: 3, c: 4,
+			data: []float64{
+				1, 0, 0, 0,
+				0, 2, 0, 7,
+				0, 0, 3, 6,
+			},
+			i: 1, j: 2,
+			v: 5,
+			result: []float64{
+				1, 0, 0, 0,
+				0, 2, 5, 7,
+				0, 0, 3, 6,
+			},
+		},
+		{ // non-zero value updated
+			r: 3, c: 4,
+			data: []float64{
+				1, 0, 0, 0,
+				0, 2, 0, 0,
+				0, 0, 3, 6,
+			},
+			i: 2, j: 2,
+			v: 5,
+			result: []float64{
+				1, 0, 0, 0,
+				0, 2, 0, 0,
+				0, 0, 8, 6,
+			},
+		},
+		{ // 0 at end of row set to non-zero
+			r: 3, c: 4,
+			data: []float64{
+				1, 0, 0, 0,
+				0, 2, 1, 0,
+				0, 0, 3, 0,
+			},
+			i: 2, j: 3,
+			v: 5,
+			result: []float64{
+				1, 0, 0, 0,
+				0, 2, 1, 0,
+				0, 0, 3, 5,
+			},
+		},
+		{ // 0 on all zero row/column set to non-zero
+			r: 3, c: 4,
+			data: []float64{
+				1, 0, 2, 0,
+				0, 0, 0, 0,
+				0, 0, 3, 6,
+			},
+			i: 1, j: 1,
+			v: 5,
+			result: []float64{
+				1, 0, 2, 0,
+				0, 5, 0, 0,
+				0, 0, 3, 6,
+			},
+		},
+	}
+
+	for ti, test := range tests {
+		t.Logf("**** Test Run %d.\n", ti+1)
+
+		expected := mat.NewDense(test.r, test.c, test.result)
+
+		csr := CreateCSR(test.r, test.c, test.data).(*CSR)
+		csc := CreateCSC(test.r, test.c, test.data).(*CSC)
+
+		csr.AddAt(test.i, test.j, test.v)
+		csc.AddAt(test.i, test.j, test.v)
+
+		if !mat.Equal(expected, csr) {
+			t.Logf("For CSR.AddAt(), Expected:\n%v\n but received:\n%v\n", mat.Formatted(expected), mat.Formatted(csr))
+			t.Fail()
+		}
+		if !mat.Equal(expected, csc) {
+			t.Logf("For CSC.AddAt(), Expected:\n%v\n but received:\n%v\n", mat.Formatted(expected), mat.Formatted(csc))
+			t.Fail()
+		}
+	}
+}
+
 func TestCSRCSCRowColView(t *testing.T) {
 	var tests = []struct {
 		r, c int
